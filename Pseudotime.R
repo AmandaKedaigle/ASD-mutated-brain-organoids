@@ -13,6 +13,11 @@ cds <- new_cell_data_set(GetAssayData(seur,slot = "counts"),
                          cell_metadata = seur@meta.data,
                          gene_metadata = fd)
 
+#Subset so control cells equals mutant cells
+table(colData(cds)$treat) #look at which one has fewer cells and downsample the other to that number
+wtCells = rownames(colData(cds)[colData(cds)$treat=="wt",])
+mutCells = sample(rownames(colData(cds)[colData(cds)$treat=="mut",]), 17059,replace = F)
+cds = cds[,c(wtCells,mutCells)]
 
 #Run Monocle
 cds <- preprocess_cds(cds, num_dim = 27) #use the same # of top PCs as used for clustering
