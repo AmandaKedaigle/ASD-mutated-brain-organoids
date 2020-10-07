@@ -7,6 +7,7 @@ library(ggbeeswarm)
 library(ggpubr)
 library(rstatix)
 library(lme4)
+library(patchwork)
 
 setwd("HUES66_3mon/")
 
@@ -90,8 +91,21 @@ ggplot(dfm, aes(x=treat,y=value)) +
   labs(y="Module Expression Score", x=NULL, color="Organoid Mean Value") +
   stat_pvalue_manual(pval, label="{p.adj}{p.adj.signif}", hide.ns = T)
 
-#Module Score FeaturePlot on psuedotime UMAP
-sub@reductions$tsne@cell.embeddings = cds@int_colData@listData$reducedDims@listData$UMAP 
+#Feature plots - 
+#We want the UMAP from the psuedotimes so the shapes match in the figure
+#first, need to recalculate cells since analyses were downsampled in different ways
+cds = readRDS("monocle3-cds-sub.rds")
+sub = subset(seur, cells = rownames(colData(cds))) #downsample to the ones on the UMAP - which were downsampled per treatment instead of per org
+sub = AddModuleScore(sub, modules)
+colnames(sub@meta.data)[(ncol(sub@meta.data)-length(modules)+1):ncol(sub@meta.data)] = names(modules)
+sub@reductions$tsne@cell.embeddings = cds@int_colData@listData$reducedDims@listData$UMAP[rownames(sub@meta.data),]
 colnames(sub@reductions$tsne@cell.embeddings) = c("tSNE_1","tSNE_2")
-FeaturePlot(sub, names(modules),pt.size=0.3) + 
-  scale_color_gradient2(low="goldenrod",mid="red",high="red4",midpoint=2) + NoAxes()
+
+modules = within(modules, rm("grey"))
+p = list()
+for (m in 1:length(modules)) {
+  p[[m]] = FeaturePlot(sub, names(modules)[[m]],pt.size=0.3) + 
+    scale_color_gradient2(low="goldenrod",mid="red",high="red4",midpoint=2) + NoAxes()
+}
+wrap_plots(p)
+ggsave("modules-Featureplots.tiff")
