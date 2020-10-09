@@ -69,13 +69,6 @@ combined$ASDmoduleScore = combined$Cluster1
 combined$Cluster1 = NULL
 FeaturePlot(combined, "ASDmoduleScore") + ggtitle("ASD Gene Module Score")
 
-#Enrichment of DEPs
-prots = readRDS("../Proteomics/allSigProteins.rds")
-combined = AddModuleScore(combined, features=list(prots))
-combined$DEPmoduleScore = combined$Cluster1
-combined$Cluster1 = NULL
-FeaturePlot(combined, "DEPmoduleScore") + ggtitle("DEP Gene Module Score")
-
 #Figures
 levels =  c("RG","Cortical Hem","Cycling Progenitors","IPCs","Subcortical","PNs","INs")
 cols = c("#41ae76","#bebada","#bbcc33","#fdb462","#77aadd","#aa4499","#332288")
@@ -91,8 +84,12 @@ VlnPlot(combined, "ASDmoduleScore", group.by = "broadCellType", pt.size = 0,sort
   ggtitle("ASD Gene Module Score") + NoLegend() + labs(x="")
 ggsave("Fig1c.pdf")
 
-cols = cols[match(c("PNs","IPCs","Cycling Progenitors","INs","Subcortical","RG","Cortical Hem"),
-                  c("INs","PNs","IPCs","Subcortical","RG","Cycling Progenitors","Cortical Hem"))]
-VlnPlot(combined, "DEPmoduleScore", group.by = "broadCellType", pt.size = 0,sort=T,cols=cols) + 
-  ggtitle("DEP Gene Module Score") + NoLegend() + labs(x="") + stat_summary(fun=median, geom="crossbar")
-ggsave("DEPs.pdf")
+#Individual ASD genes
+genes = c("ARID1B","POGZ","ANK2","SCN1A","GRIN2B","STXBP1","RELN","KMT5B","TCF4","CHD8","FOXP1","PTEN")
+png('GM.ASDindivgenes.featureplots.png',res=100, width=2*370, height=1800)
+FeaturePlot(combined,genes, ncol=2)
+dev.off()
+pdf("GM.ASDindivgenes.vlnplots.pdf", height=18, width=6)
+VlnPlot(combined,genes, ncol=2, group.by = "dataset", pt.size=0)
+dev.off()
+

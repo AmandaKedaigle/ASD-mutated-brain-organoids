@@ -2,6 +2,7 @@
 library(monocle3)
 library(Seurat)
 library(cowplot)
+library(ggplot2)
 library(ggridges)
 
 #Load data
