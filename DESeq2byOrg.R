@@ -166,10 +166,10 @@ datSlim$dataset = factor(datSlim$dataset, levels=c("SUV_d35","CHD8_3m"))
 dss = datSlim[datSlim$dataset=="SUV_d35",]
 geneOrder = unique(dss[order(dss$log2FoldChange),]$gene)
 datSlim$gene = factor(datSlim$gene, levels=geneOrder)
-ggplot(datSlim, aes(x=gene, y=log2FoldChange, fill=padj)) +
+ggplot(datSlim, aes(x=gene, y=log2FoldChange, fill=log2FoldChange)) +
   geom_bar(stat="identity", position=position_dodge()) +
   facet_grid(dataset ~ ., scales="free") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)) +
-  scale_fill_viridis()
-ggsave("DEGs.SUVandCHD8overlap.pdf")
+  scale_fill_gradient2(low="blue",mid="white",high="red",midpoint=0)
+ggsave("DEGs.SUVandCHD8overlap-rb.pdf")
